@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: msprediccion
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/valuo?currentSchema=schema_prediccion&sslmode=${DB_SSLMODE:prefer}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.default_schema: schema_prediccion
+  flyway:
+    schemas: schema_prediccion
+
+server:
+  port: 8083
+
+valuo:
+  jwt:
+    # Debe ser el MISMO secreto Base64 que usa msusuarios (aquí solo se valida, no se firma).
+    secret: ${JWT_SECRET:dmFsdW8tZGV2LXNlY3JldC1rZXktY2FtYmlhci1lbi1wcm9kdWNjaW9uLTMyYnl0ZXM=}
+  cors:
+    origins: ${CORS_ORIGINS:http://localhost:4200}
+  ml:
+    # Servicio FastAPI (XGBoost + SHAP + MLflow).
+    url: ${ML_SERVICE_URL:http://localhost:8000}
+    # PENDIENTE: si el FastAPI exige X-Admin-Token en /modelos/info y /modelos/sensibilidad-factores, activar esta
+    # línea junto con el bloque comentado de PlataformaMlAdapter y el campo adminToken de ValuoProperties.Ml.
+    # admin-token: ${ML_ADMIN_TOKEN:}
+    timeout-conexion: 2s
+    timeout-lectura: 30s
+  inmuebles:
+    url: ${MSINMUEBLES_URL:http://localhost:8082}
+  tipo-cambio:
+    # Soles por dólar para mostrar la estimación en USD (vigente al 2026-10-26). Se puede pasar por variable.
+    pen-por-usd: ${TIPO_CAMBIO_PEN_USD:3.44}
