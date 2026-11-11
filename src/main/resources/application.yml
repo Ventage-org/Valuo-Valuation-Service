@@ -25,14 +25,14 @@ valuo:
     origins: ${CORS_ORIGINS:http://localhost:4200}
   ml:
     # Servicio FastAPI (XGBoost + SHAP + MLflow).
-    url: ${ML_SERVICE_URL:http://localhost:8000}
+    url: ${ML_SERVICE_URL:http://127.0.0.1:8000}
     # PENDIENTE: si el FastAPI exige X-Admin-Token en /modelos/info y /modelos/sensibilidad-factores, activar esta
     # línea junto con el bloque comentado de PlataformaMlAdapter y el campo adminToken de ValuoProperties.Ml.
     # admin-token: ${ML_ADMIN_TOKEN:}
     timeout-conexion: 2s
     timeout-lectura: 30s
   inmuebles:
-    url: ${MSINMUEBLES_URL:http://localhost:8082}
+    url: ${MSINMUEBLES_URL:http://127.0.0.1:8082}
   tipo-cambio:
     # Soles por dólar para mostrar la estimación en USD (vigente al 2026-10-26). Se puede pasar por variable.
     pen-por-usd: ${TIPO_CAMBIO_PEN_USD:3.44}
