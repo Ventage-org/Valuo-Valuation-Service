@@ -2,9 +2,9 @@ spring:
   application:
     name: msprediccion
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/valuo?currentSchema=schema_prediccion&sslmode=${DB_SSLMODE:prefer}
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:db_operacional_valuo}?currentSchema=schema_prediccion&sslmode=${DB_SSLMODE:prefer}
     username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+    password: ${DB_PASSWORD:5432}
   jpa:
     open-in-view: false
     hibernate:
