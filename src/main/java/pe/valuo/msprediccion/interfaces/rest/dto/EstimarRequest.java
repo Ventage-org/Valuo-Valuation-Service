@@ -24,6 +24,7 @@ import java.util.UUID;
 public record EstimarRequest(
         @NotNull TipoOperacion tipoPrediccion,
         Boolean guardarEnCartera,
+        UUID inmuebleId,
         @Size(max = 150) String titulo,
         @Size(max = 2000) String descripcion,
         @NotNull TipoInmueble tipoInmueble,
@@ -46,9 +47,12 @@ public record EstimarRequest(
     public RegistrarEstimacionCommand aCommand(UUID agenteId, String tokenAgente) {
         CaracteristicasInmueble caracteristicas = new CaracteristicasInmueble(tipoInmueble, distritoId,
                 superficieTotalM2, habitaciones, banos, estacionamientos, piso, antiguedadAnios, Boolean.TRUE.equals(vistaExterior));
-        DatosCartera cartera = new DatosCartera(titulo, descripcion, superficieTechadaM2, Boolean.TRUE.equals(esEstreno), direccion,
+        BigDecimal techada = (superficieTechadaM2 != null && superficieTechadaM2.compareTo(BigDecimal.ZERO) > 0)
+                ? superficieTechadaM2
+                : superficieTotalM2;
+        DatosCartera cartera = new DatosCartera(titulo, descripcion, techada, Boolean.TRUE.equals(esEstreno), direccion,
                 latitud, longitud, precioPublicado, imagenesUrls);
         return new RegistrarEstimacionCommand(agenteId, tokenAgente, tipoPrediccion, caracteristicas,
-                Boolean.TRUE.equals(guardarEnCartera), cartera);
+                Boolean.TRUE.equals(guardarEnCartera), inmuebleId, cartera);
     }
 }

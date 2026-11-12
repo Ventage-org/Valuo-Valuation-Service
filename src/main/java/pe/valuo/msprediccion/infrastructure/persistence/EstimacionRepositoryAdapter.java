@@ -44,6 +44,21 @@ class EstimacionRepositoryAdapter implements EstimacionRepository {
     }
 
     @Override
+    public Pagina<Estimacion> buscar(UUID agenteId, UUID inmuebleId, TipoOperacion tipo, int pagina, int tamanio) {
+        PageRequest pedido = PageRequest.of(pagina, tamanio, MAS_RECIENTES_PRIMERO);
+        Page<Estimacion> resultado = tipo == null
+                ? jpa.findByAgenteIdAndInmuebleId(agenteId, inmuebleId, pedido)
+                : jpa.findByAgenteIdAndInmuebleIdAndTipoOperacion(agenteId, inmuebleId, tipo, pedido);
+        return new Pagina<>(resultado.getTotalElements(), resultado.getTotalPages(), resultado.getNumber(),
+                resultado.getContent());
+    }
+
+    @Override
+    public Optional<Estimacion> buscarUltimaPorInmueble(UUID agenteId, UUID inmuebleId) {
+        return jpa.findFirstByAgenteIdAndInmuebleIdOrderByCreatedAtDesc(agenteId, inmuebleId);
+    }
+
+    @Override
     public Map<TipoOperacion, Long> contarPorTipo(UUID agenteId) {
         Map<TipoOperacion, Long> porTipo = new EnumMap<>(TipoOperacion.class);
         for (Object[] fila : jpa.contarPorTipo(agenteId)) {

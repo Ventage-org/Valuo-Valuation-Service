@@ -45,14 +45,15 @@ public class EstimacionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(resultado);
     }
 
-    /** Historial del agente; {@code tipoOperacion} (venta / alquiler) es opcional. */
+    /** Historial del agente; {@code inmuebleId} y {@code tipoOperacion} son opcionales. */
     @GetMapping
     public Pagina<EstimacionResumenResult> historial(@AuthenticationPrincipal Jwt jwt,
+                                                     @RequestParam(required = false) UUID inmuebleId,
                                                      @RequestParam(required = false) String tipoOperacion,
                                                      @RequestParam(defaultValue = "0") @Min(0) int pagina,
                                                      @RequestParam(defaultValue = "10") @Min(1) @Max(50) int tamanio) {
         TipoOperacion tipo = tipoOperacion == null ? null : TipoOperacion.desde(tipoOperacion);
-        return listarEstimaciones.ejecutar(agenteId(jwt), tipo, pagina, tamanio);
+        return listarEstimaciones.ejecutar(agenteId(jwt), inmuebleId, tipo, pagina, tamanio);
     }
 
     @GetMapping("/{id}")

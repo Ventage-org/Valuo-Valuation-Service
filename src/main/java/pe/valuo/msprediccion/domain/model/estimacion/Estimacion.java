@@ -111,6 +111,19 @@ public class Estimacion {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    /** Comprueba si las características físicas y la operación son idénticas a una nueva solicitud. */
+    public boolean tieneMismasCaracteristicas(TipoOperacion tipoOp, CaracteristicasInmueble c) {
+        return this.tipoOperacion == tipoOp
+                && java.util.Objects.equals(this.distritoId, c.distritoId())
+                && this.superficieTotalM2.compareTo(c.superficieTotalM2()) == 0
+                && this.habitaciones == c.habitaciones()
+                && this.banos.compareTo(c.banos()) == 0
+                && this.estacionamientos == c.estacionamientos()
+                && java.util.Objects.equals(this.piso, c.piso())
+                && this.antiguedadAnios == c.antiguedadAnios()
+                && this.vistaExterior == c.vistaExterior();
+    }
+
     /**
      * @param tipoCambio soles por dólar vigente al estimar
      * @param inmuebleId inmueble creado en la cartera, o nulo si el agente no lo guardó

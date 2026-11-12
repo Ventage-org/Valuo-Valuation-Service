@@ -18,6 +18,12 @@ public interface EstimacionRepository {
     /** Más recientes primero. Con {@code tipo} nulo devuelve ventas y alquileres. */
     Pagina<Estimacion> buscar(UUID agenteId, TipoOperacion tipo, int pagina, int tamanio);
 
+    /** Más recientes primero filtradas por inmueble específico. */
+    Pagina<Estimacion> buscar(UUID agenteId, UUID inmuebleId, TipoOperacion tipo, int pagina, int tamanio);
+
+    /** Obtiene la última estimación registrada para un inmueble del agente. */
+    Optional<Estimacion> buscarUltimaPorInmueble(UUID agenteId, UUID inmuebleId);
+
     /** Tipos sin estimaciones no aparecen en el mapa. */
     Map<TipoOperacion, Long> contarPorTipo(UUID agenteId);
 }

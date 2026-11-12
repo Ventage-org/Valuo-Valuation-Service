@@ -20,6 +20,12 @@ interface SpringDataEstimacionRepository extends JpaRepository<Estimacion, UUID>
 
     Page<Estimacion> findByAgenteIdAndTipoOperacion(UUID agenteId, TipoOperacion tipoOperacion, Pageable pageable);
 
+    Page<Estimacion> findByAgenteIdAndInmuebleId(UUID agenteId, UUID inmuebleId, Pageable pageable);
+
+    Page<Estimacion> findByAgenteIdAndInmuebleIdAndTipoOperacion(UUID agenteId, UUID inmuebleId, TipoOperacion tipoOperacion, Pageable pageable);
+
+    Optional<Estimacion> findFirstByAgenteIdAndInmuebleIdOrderByCreatedAtDesc(UUID agenteId, UUID inmuebleId);
+
     @Query("select e.tipoOperacion, count(e) from Estimacion e where e.agenteId = :agenteId group by e.tipoOperacion")
     List<Object[]> contarPorTipo(@Param("agenteId") UUID agenteId);
 }

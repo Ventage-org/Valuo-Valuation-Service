@@ -128,7 +128,7 @@ class EstimacionControllerTest {
 
     @Test
     void laSensibilidadDeFactoresEsPublica() throws Exception {
-        when(plataformaMl.consultar(eq("/api/v1/modelos/sensibilidad-factores"), any()))
+        when(plataformaMl.consultar(eq("/api/v1/modelos/sensibilidad-factores/venta"), any()))
                 .thenReturn(JSON.readTree("{\"tipo_operacion\":\"venta\"}"));
 
         mockMvc.perform(get("/api/v1/modelos/sensibilidad-factores"))

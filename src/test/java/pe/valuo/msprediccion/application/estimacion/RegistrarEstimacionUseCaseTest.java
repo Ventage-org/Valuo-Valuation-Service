@@ -14,6 +14,7 @@ import pe.valuo.msprediccion.domain.exception.DistritoNoEncontradoException;
 import pe.valuo.msprediccion.domain.exception.ValorInvalidoException;
 import pe.valuo.msprediccion.domain.model.distrito.Distrito;
 import pe.valuo.msprediccion.domain.model.estimacion.CaracteristicasInmueble;
+import pe.valuo.msprediccion.domain.model.estimacion.Estimacion;
 import pe.valuo.msprediccion.domain.model.estimacion.ResultadoModelo;
 import pe.valuo.msprediccion.domain.model.estimacion.TipoInmueble;
 import pe.valuo.msprediccion.domain.model.estimacion.TipoOperacion;
@@ -63,7 +64,7 @@ class RegistrarEstimacionUseCaseTest {
     private void conDistritoJesusMaria() {
         Distrito distrito = mock(Distrito.class);
         lenient().when(distrito.getNombre()).thenReturn("Jesús María");
-        when(distrito.getNombreModelo()).thenReturn("Jesus Maria");
+        lenient().when(distrito.getNombreModelo()).thenReturn("Jesus Maria");
         when(distritoRepository.buscarActivoPorId((short) 9)).thenReturn(Optional.of(distrito));
     }
 
@@ -121,6 +122,46 @@ class RegistrarEstimacionUseCaseTest {
         assertThatThrownBy(() -> useCase.ejecutar(command)).isInstanceOf(ValorInvalidoException.class)
                 .hasMessage("La estimación solo está disponible para departamentos");
         verifyNoInteractions(distritoRepository, motorEstimacion);
+    }
+
+    @Test
+    void retasacionRechazaSiNoHayCambiosEnCaracteristicas() {
+        UUID inmueble = UUID.randomUUID();
+        conDistritoJesusMaria();
+        Estimacion previa = Estimacion.registrar(AGENTE, TipoOperacion.VENTA, DEPARTAMENTO, "Jesús María",
+                "Depa", "Av. Brasil", RESULTADO, new BigDecimal("3.75"), inmueble);
+        when(estimacionRepository.buscarUltimaPorInmueble(AGENTE, inmueble)).thenReturn(Optional.of(previa));
+
+        RegistrarEstimacionCommand command = new RegistrarEstimacionCommand(AGENTE, "token", TipoOperacion.VENTA,
+                DEPARTAMENTO, false, inmueble, CARTERA);
+
+        assertThatThrownBy(() -> useCase.ejecutar(command))
+                .isInstanceOf(ValorInvalidoException.class)
+                .hasMessage("Las características del inmueble no han cambiado. No requiere nueva tasación.");
+        verifyNoInteractions(motorEstimacion);
+        verify(estimacionRepository, never()).guardar(any());
+    }
+
+    @Test
+    void retasacionPermiteSiCambiaronCaracteristicas() {
+        UUID inmueble = UUID.randomUUID();
+        conDistritoJesusMaria();
+        CaracteristicasInmueble previas = new CaracteristicasInmueble(TipoInmueble.DEPARTAMENTO,
+                (short) 9, new BigDecimal("80"), 2, new BigDecimal("1.0"), 0, 3, 5, false);
+        Estimacion previa = Estimacion.registrar(AGENTE, TipoOperacion.VENTA, previas, "Jesús María",
+                "Depa", "Av. Brasil", RESULTADO, new BigDecimal("3.75"), inmueble);
+        when(estimacionRepository.buscarUltimaPorInmueble(AGENTE, inmueble)).thenReturn(Optional.of(previa));
+        when(motorEstimacion.estimar(any(), any(), any())).thenReturn(RESULTADO);
+        when(proveedorTipoCambio.penPorUsd()).thenReturn(new BigDecimal("3.75"));
+        when(estimacionRepository.guardar(any())).thenAnswer(i -> i.getArgument(0));
+
+        RegistrarEstimacionCommand command = new RegistrarEstimacionCommand(AGENTE, "token", TipoOperacion.VENTA,
+                DEPARTAMENTO, false, inmueble, CARTERA);
+
+        EstimacionResult resultado = useCase.ejecutar(command);
+        assertThat(resultado.inmuebleId()).isEqualTo(inmueble);
+        verifyNoInteractions(carteraInmuebles);
+        verify(estimacionRepository).guardar(any());
     }
 
     @Test

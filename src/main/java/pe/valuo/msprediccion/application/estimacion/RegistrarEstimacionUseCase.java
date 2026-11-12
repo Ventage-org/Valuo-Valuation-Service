@@ -40,13 +40,23 @@ public class RegistrarEstimacionUseCase {
         Distrito distrito = distritoRepository.buscarActivoPorId(distritoId)
                 .orElseThrow(() -> new DistritoNoEncontradoException(distritoId));
 
+        UUID inmuebleId = command.inmuebleId();
+        if (inmuebleId != null) {
+            estimacionRepository.buscarUltimaPorInmueble(command.agenteId(), inmuebleId)
+                    .ifPresent(ultima -> {
+                        if (ultima.tieneMismasCaracteristicas(command.tipoOperacion(), command.caracteristicas())) {
+                            throw new ValorInvalidoException("Las características del inmueble no han cambiado. No requiere nueva tasación.");
+                        }
+                    });
+        }
+
         ResultadoModelo resultado = motorEstimacion.estimar(command.tipoOperacion(), command.caracteristicas(),
                 distrito.getNombreModelo());
 
         DatosCartera cartera = command.datosCartera();
-        UUID inmuebleId = command.guardarEnCartera()
-                ? carteraInmuebles.registrar(command.tokenAgente(), command.caracteristicas(), cartera)
-                : null;
+        if (inmuebleId == null && command.guardarEnCartera()) {
+            inmuebleId = carteraInmuebles.registrar(command.tokenAgente(), command.caracteristicas(), cartera);
+        }
 
         Estimacion estimacion = Estimacion.registrar(command.agenteId(), command.tipoOperacion(),
                 command.caracteristicas(), distrito.getNombre(), cartera.titulo(), cartera.direccion(), resultado,

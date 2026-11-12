@@ -12,5 +12,12 @@ public record RegistrarEstimacionCommand(
         TipoOperacion tipoOperacion,
         CaracteristicasInmueble caracteristicas,
         boolean guardarEnCartera,
+        UUID inmuebleId,
         DatosCartera datosCartera) {
+
+    public RegistrarEstimacionCommand(UUID agenteId, String tokenAgente, TipoOperacion tipoOperacion,
+                                     CaracteristicasInmueble caracteristicas, boolean guardarEnCartera,
+                                     DatosCartera datosCartera) {
+        this(agenteId, tokenAgente, tipoOperacion, caracteristicas, guardarEnCartera, null, datosCartera);
+    }
 }
