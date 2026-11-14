@@ -48,6 +48,39 @@ public class ModeloController {
         return plataformaMl.consultar("/api/v1/modelo/info", parametroTipo(tipoOperacion));
     }
 
+    /** Contexto socioeconómico y territorial enriquecido por coordenadas para micro-entorno. */
+    @GetMapping("/contexto-distrital/{distrito}")
+    public JsonNode contextoDistrital(
+            @PathVariable String distrito,
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lon) {
+        String distModelo = mapearDistritoModelo(distrito);
+        Map<String, Object> params = new java.util.HashMap<>();
+        if (lat != null) params.put("lat", lat);
+        if (lon != null) params.put("lon", lon);
+        return plataformaMl.consultar("/api/v1/distritos/" + distModelo + "/contexto", params);
+    }
+
+    /** Tendencias de mercado distritales (precios m2, variacion trimestral, tickets). */
+    @GetMapping("/tendencias-distritales")
+    public JsonNode tendenciasDistritales(
+            @RequestParam(name = "tipo_operacion", defaultValue = "venta") String tipoOperacion,
+            @RequestParam(name = "tipo_cambio", required = false) Double tipoCambio) {
+        String clave = TipoOperacion.desde(tipoOperacion).clave();
+        Map<String, Object> params = new java.util.HashMap<>();
+        params.put("tipo_operacion", clave);
+        if (tipoCambio != null) params.put("tipo_cambio", tipoCambio);
+        return plataformaMl.consultar("/api/v1/mercado/tendencias-distritales", params);
+    }
+
+    private static String mapearDistritoModelo(String distrito) {
+        if (distrito == null) return "";
+        String trimmed = distrito.trim();
+        if (trimmed.equalsIgnoreCase("Magdalena del Mar")) return "Magdalena";
+        if (trimmed.equalsIgnoreCase("Santiago de Surco")) return "Surco";
+        return trimmed;
+    }
+
     private static Map<String, Object> parametroTipo(String tipoOperacion) {
         return Map.of("tipo_operacion", TipoOperacion.desde(tipoOperacion).clave());
     }

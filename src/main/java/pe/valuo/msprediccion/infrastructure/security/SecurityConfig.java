@@ -33,8 +33,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        // Landing page y dashboard: pesos de los macro-factores del mercado.
-                        .requestMatchers(HttpMethod.GET, "/api/v1/modelos/sensibilidad-factores", "/api/v1/modelos/sensibilidad-factores/**").permitAll()
+                        // Landing page y dashboard: pesos de los macro-factores del mercado e info pública.
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/modelos/sensibilidad-factores",
+                                "/api/v1/modelos/sensibilidad-factores/**",
+                                "/api/v1/modelos/contexto-distrital/**",
+                                "/api/v1/modelos/tendencias-distritales").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(convertidor())))
                 .build();

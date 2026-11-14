@@ -20,11 +20,12 @@ public record EstimacionResumenResult(
         BigDecimal superficieTotalM2,
         BigDecimal valorEstimadoUsd,
         BigDecimal valorEstimadoSoles,
-        UUID inmuebleId) {
+        UUID inmuebleId,
+        BigDecimal mapePct) {
 
     public static EstimacionResumenResult de(Estimacion e) {
         return new EstimacionResumenResult(e.getId(), e.getTipoOperacion(), e.getCreatedAt(), e.getTitulo(),
                 e.getDireccion(), e.getDistritoNombre(), e.getTipoInmueble(), e.getSuperficieTotalM2(),
-                e.enDolares(e.getPrecioSoles()), e.getPrecioSoles(), e.getInmuebleId());
+                e.enDolares(e.getPrecioSoles()), e.getPrecioSoles(), e.getInmuebleId(), e.getMapePct());
     }
 }
